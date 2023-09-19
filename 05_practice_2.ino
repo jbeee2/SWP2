@@ -20,7 +20,7 @@ void loop() {
   digitalWrite(PIN_LED, toggle);
   delay(100);
   ++count;
-  if (count == 13) {
+  if (count == 11) {
     while(1) {}
   }
 }
