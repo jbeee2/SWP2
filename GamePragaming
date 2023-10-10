@@ -1,0 +1,338 @@
+package jb3133;
+
+import java.util.Scanner;
+
+public class TextRPG {
+
+	static int hero_level, hero_power, hero_hp, hero_defense, hero_max_hp, hero_max_mp, hero_mp, hero_exp, hero_money;
+	static int monster_hp, monster_defense, monster_power, monster_mp, monster_level, monster_exp, monster_money;
+
+	static String hero_name, hero_class, monster_name;
+
+	public static void main(String[] args) {
+		Scanner in = new Scanner(System.in);
+		System.out.println("****Text RPG Game****");
+		hero_class_choice();
+
+		System.out.print("영웅의 이름을 입력하십시오 : ");
+		hero_name = in.next();
+		hero_level = 1;
+		hero_exp = 0;
+		hero_money = 30;
+		System.out.println("이름이 입력되었습니다.");
+		System.out.println("게임에 입장하였습니다");
+		while (true) {
+			hero_status();
+			System.out.println("****   Location   ****");
+			System.out.println("1, 사냥터");
+			System.out.println("2. 상점");
+			System.out.print("이동할 장소의 번호를 입력하십시오 : ");
+			int num = in.nextInt();
+			if (num == 1) {
+				System.out.println("사냥터에 입장하였습니다");
+				System.out.println("0. 돌아가기");
+				System.out.println("1. 너구리");
+				System.out.println("2. 살쾡이");
+				System.out.print("상대할 상대의 번호를 입력하십시오 : ");
+				int mon_num = in.nextInt();
+				if (mon_num == 1) {
+					monster_name = "너구리";
+					monster_level = (hero_level / 8) * 6 + 4;
+					monster_power = monster_level * 5;
+					monster_hp = monster_level * 5 + 30;
+					monster_mp = 0;
+					monster_defense = monster_level * 3;
+					monster_exp = monster_level * 5;
+					monster_money = monster_level * 5;
+					while (true) {
+
+						monster_attacked(hero_attack());
+						if (monster_hp <= 0) {
+							hero_money += monster_money;
+							hero_exp += monster_exp;
+							break;
+						}
+
+						hero_attacked(monster_attack());
+						if (hero_hp <= 0) {
+							break;
+						}
+					}
+				} else if (mon_num == 2) {
+					monster_name = "살쾡이";
+					monster_level = (hero_level / 5) * 6 + 4;
+					monster_power = monster_level * 6;
+					monster_hp = monster_level * 7 + 30;
+					monster_mp = 0;
+					monster_defense = monster_level * 3;
+					monster_exp = monster_level * 5;
+					monster_money = monster_level * 5;
+					while (true) {
+
+						monster_attacked(hero_attack());
+						if (monster_hp <= 0) {
+							System.out.println("승리하였습니다!");
+							hero_money += monster_money;
+							hero_exp += monster_exp;
+							break;
+						}
+
+						hero_attacked(monster_attack());
+						if (hero_hp <= 0) {
+							break;
+						}
+					}
+				}
+				if (hero_exp >= hero_level * 80) {
+					hero_level += 1;
+					System.out.printf("$s의 레벨이 $d이 되었습니다", hero_name, hero_level);
+					hero_money += (hero_level / 10) + 10;
+					System.out.printf("레벨업 보상으로 %d원을 얻어 총 %d월이 되었습니다", hero_level * 50, hero_money);
+					hero_exp = 0;
+					// 레벨업 프로세스
+					if (hero_class == "전사") {
+						hero_max_hp += 5;
+						hero_power += 7;
+						hero_max_mp += 5;
+						hero_defense += 5;
+					} else if (hero_class == "기사") {
+						hero_max_hp += 5;
+						hero_power += 5;
+						hero_max_mp += 5;
+						hero_defense += 7;
+					} else if (hero_class == "마법사") {
+						hero_max_hp += 5;
+						hero_power += 5;
+						hero_max_mp += 7;
+						hero_defense += 5;
+					}
+					// 직업별 성장 능력치 차이
+					hero_hp = hero_max_hp;
+					hero_mp = hero_max_mp;
+					// 레벨업 시 체력과 마나 모두 회복
+				}
+				if (hero_hp <= 0) {
+					System.out.println("****  GAME OVER  ****");
+					break;
+				}
+			} else if (num == 2) {
+				System.out.println("상점에 입장하였습니다");
+				System.out.println("0. 돌아가기");
+				System.out.println("1. hp 포션 (hp 20 회복) : 10원");
+				System.out.println("2. mp 포션 (mp 10 회복) : 15원");
+				System.out.println("3. 공격력 증가 포션 (공격력 15 증가) : 30원");
+				System.out.println("4. 방어력 증가 포션 (방여력 10 증가) : 25원");
+				System.out.print("구매할 물품의 번호를 입력하십시오 : ");
+				int shop_num = in.nextInt();
+				if (shop_num == 0) {
+					continue;
+				} else {
+					shop_purchase(shop_num);
+				}
+
+			}
+			if (hero_hp <= 0) {
+
+				break;
+			}
+		}
+	}
+
+	static void hero_status() {
+
+		System.out.println("****    Status    ****");
+		System.out.println("이름 : " + hero_name);
+		System.out.println("레벨 : " + hero_level);
+		System.out.println("직업 : " + hero_class);
+		System.out.println("공격력 : " + hero_power);
+		System.out.println("방어력 : " + hero_defense);
+		System.out.println("HP : " + hero_hp + "/" + hero_max_hp);
+		System.out.println("MP : " + hero_mp + "/" + hero_max_mp);
+		System.out.println("현재 경험치 : " + hero_exp);
+		System.out.println("현재 보유 재화 : " + hero_money);
+		System.out.println("**********O***********");
+	}
+
+	static int hero_attack() {
+		int sum = 0;
+		System.out.println(hero_name + "의 차례입니다.");
+		Scanner in = new Scanner(System.in);
+		int hero_atk_type = 0;
+		if (hero_class == "전사") {
+			System.out.println("1. 기본 공격");
+			System.out.println("2. 가로 베기");
+			System.out.print("공격에 사용할 기술의 번호를 입력하십시오 : ");
+			hero_atk_type = in.nextInt();
+			if (hero_atk_type == 1) {
+				sum += hero_power;
+				System.out.println(hero_name + "의 기본 공격");
+			} else if (hero_atk_type == 2) {
+				if (hero_mp < 5) {
+					System.out.println("mp가 적어 기본 공격을 합니다");
+					System.out.println(hero_name + "의 기본 공격");
+					sum += hero_power;
+				} else if (hero_mp >= 5) {
+					hero_mp -= 5;
+					sum += hero_power * 1.5;
+					System.out.println(hero_name + "의 가로 베기");
+					System.out.println(hero_name + "의 남은 mp : " + hero_mp + "/" + hero_max_mp);
+				}
+			}
+		}
+		if (hero_class == "기사") {
+			System.out.println("1. 기본 공격");
+			System.out.println("2. 찌르기");
+			System.out.print("공격에 사용할 기술의 번호를 입력하십시오 : ");
+			hero_atk_type = in.nextInt();
+			if (hero_atk_type == 1) {
+				sum += hero_power;
+				System.out.println(hero_name + "의 기본 공격");
+			} else if (hero_atk_type == 2) {
+				if (hero_mp < 5) {
+					System.out.println("mp가 적어 기본 공격을 합니다");
+					System.out.println(hero_name + "의 기본 공격");
+					sum += hero_power;
+				} else if (hero_mp >= 5) {
+					hero_mp -= 5;
+					sum += hero_power * 1.5;
+					System.out.println(hero_name + "의 찌르기");
+					System.out.println(hero_name + "의 남은 mp : " + hero_mp + "/" + hero_max_mp);
+				}
+			}
+		}
+		if (hero_class == "마법사") {
+			System.out.println("1. 기본 공격");
+			System.out.println("2. 파이어 볼");
+			System.out.print("공격에 사용할 기술의 번호를 입력하십시오 : ");
+			hero_atk_type = in.nextInt();
+			if (hero_atk_type == 1) {
+				sum += hero_power;
+				System.out.println(hero_name + "의 기본 공격");
+			} else if (hero_atk_type == 2) {
+				if (hero_mp < 5) {
+					System.out.println("mp가 적어 기본 공격을 합니다");
+					System.out.println(hero_name + "의 기본 공격");
+					sum += hero_power;
+				} else if (hero_mp >= 5) {
+					hero_mp -= 5;
+					sum += hero_power * 1.5;
+					System.out.println(hero_name + "의 파이어 볼");
+					System.out.println(hero_name + "의 남은 mp : " + hero_mp + "/" + hero_max_mp);
+				}
+			}
+		}
+		return sum;
+	}
+
+	static void hero_attacked(int sum) {
+		if (hero_defense >= sum) {
+			hero_hp -= 1;
+			System.out.println("1의 데미지를 입었다");
+			System.out.println(hero_name + "의 남은 hp : " + hero_hp + "/" + hero_max_hp);
+		} else {
+			hero_hp -= sum - hero_defense;
+			System.out.println((hero_defense - sum) + "의 데미지를 입었다");
+			System.out.println(hero_name + "의 남은 hp : " + hero_hp + "/" + hero_max_hp);
+		}
+	}
+
+	static int monster_attack() {
+		int sum = 0;
+		sum = monster_level / 10 + monster_power;
+		System.out.println(monster_name + "의 공격");
+		return sum;
+	}
+
+	static void monster_attacked(int sum) {
+		if (monster_defense >= sum) {
+			monster_hp -= 1;
+			System.out.println("1의 데미지를 입혔다");
+			System.out.println(monster_name + "의 남은 hp : " + monster_hp);
+		} else {
+			monster_hp -= sum - monster_defense;
+			System.out.println((monster_defense - sum) + "의 데미지를 입혔다");
+			System.out.println(monster_name + "의 남은 hp : " + monster_hp);
+		}
+	}
+
+	static void hero_class_choice() {
+		Scanner in = new Scanner(System.in);
+		System.out.println("****    CLASS    ****");
+		System.out.println("1. 전사");
+		System.out.println("2. 기사");
+		System.out.println("3. 마법사");
+		System.out.print("원하는 직업의 번호를 입력하십시오 : ");
+		int class_num = in.nextInt();
+		if (class_num == 1) {
+			hero_power = 20;
+			hero_defense = 20;
+			hero_hp = hero_max_hp = 70;
+			hero_mp = hero_max_mp = 20;
+			hero_class = "전사";
+		} else if (class_num == 2) {
+			hero_power = 15;
+			hero_defense = 30;
+			hero_hp = hero_max_hp = 80;
+			hero_mp = hero_max_mp = 20;
+			hero_class = "기사";
+		} else if (class_num == 3) {
+			hero_power = 15;
+			hero_defense = 20;
+			hero_hp = hero_max_hp = 70;
+			hero_mp = hero_max_mp = 50;
+			hero_class = "마법사";
+		}
+	}
+
+	static void shop_purchase(int shop_num) {
+		if (shop_num == 1) {
+			if (hero_money >= 10) {
+				if (hero_hp == hero_max_hp) {
+					System.out.println("더이상 hp 포션을 구매할수 없습니다");
+				} else {
+					hero_money -= 10;
+					hero_hp += 20;
+					System.out.println("hp가 회복되었습니다");
+					if (hero_hp > hero_max_hp) {
+						hero_hp = hero_max_hp;
+						System.out.println("최대체력입니다");
+					}
+				}
+			} else {
+				System.out.println("돈이 부족하여 상점에서 쫒겨났습니다");
+			}
+		} else if (shop_num == 2) {
+			if (hero_money >= 20) {
+				if (hero_mp == hero_max_mp) {
+					System.out.println("더이상 hp 포션을 구매할수 없습니다");
+				} else {
+					hero_money -= 10;
+					hero_hp += 20;
+					System.out.println("hp가 회복되었습니다");
+					if (hero_hp > hero_max_hp) {
+						hero_hp = hero_max_hp;
+						System.out.println("최대체력입니다");
+					}
+				}
+			} else {
+				System.out.println("돈이 부족하여 상점에서 쫒겨났습니다");
+			}
+		} else if (shop_num == 3) {
+			if (hero_money >= 30) {
+				hero_power += 15;
+				System.out.println("공격력이 증가하였습니다");
+				hero_money -= 30;
+			} else {
+				System.out.println("돈이 부족하여 상점에서 쫒겨났습니다");
+			}
+		} else if (shop_num == 4) {
+			if (hero_money >= 25) {
+				hero_defense += 10;
+				System.out.println("방어력이 증가하였습니다");
+				hero_money -= 25;
+			} else {
+				System.out.println("돈이 부족하여 상점에서 쫒겨났습니다");
+			}
+		}
+	}
+}
